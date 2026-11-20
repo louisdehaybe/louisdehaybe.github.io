@@ -1,0 +1,10 @@
+# Originals (several GB, includes the CV and unpublished material). Never publish.
+Media/
+
+.venv/
+.venv_blur/
+.venv_blur_models/
+__pycache__/
+.claude/
+Thumbs.db
+desktop.ini
