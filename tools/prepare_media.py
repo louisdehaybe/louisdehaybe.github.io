@@ -37,6 +37,9 @@ PHOTOS = {
     SHOOT % "56": ("kuka-draping-4", 1600),
     PIM % "71": ("student-projects-1", 1600),
     PIM % "75": ("student-projects-2", 1600),
+    "Outreach_blurred/Student presentation/photo1.jpg": ("student-presentation", 1600),
+    "Outreach/Robotix workshop/sawyer-bearing.jpg": ("sawyer-bearing", 960),
+    "Outreach/IMSD 2026/presenting-imsd.jpg": ("imsd-2026-3", 1600),
     SAWYER + "20220316_132808.jpg": ("sawyer-competition-1", 1600),
     SAWYER + "20220316_152631.jpg": ("sawyer-competition-2", 1600),
     SAWYER + "262706074_870480186952794_7388050668464424372_n.jpg": ("sawyer-competition-3", 1600),
@@ -59,7 +62,20 @@ PHOTOS = {
     "Research/IMSD/1782439238325.jfif": ("imsd-2026-2", 1600),
     "Research/scene_8_PBS_35_trial_2_part1.png": ("servoing-trajectories", 1600),
     "Research/SE3drawing.png": ("se3-setup", 1400),
+    "Projects/water cleaning vessel/water_cleaning_vessel_crop.jpg": ("vessel-boat", 1600),
     "Research/shape_servoing_mujoco_simu2.png": ("servoing-shell-mujoco", 1600),
+    "Projects/roller/2021-12-01_shooting-fsa_robotique_robotics_robot_pellois_charlier_b52_0729_s.seyen00049.jpg": ("roller-1", 1600),
+    "Projects/roller/2021-12-01_shooting-fsa_robotique_robotics_robot_pellois_charlier_b52_0729_s.seyen00050.jpg": ("roller-2", 1600),
+    "Projects/roller/Capture d'écran 2026-11-14 142025.png": ("roller-3", 1600),
+    "Projects/roller/Capture d'écran 2026-11-21 160010.png": ("roller-4", 1600),
+    "Projects/roller/IMG_6251.jpg": ("roller-5", 1600),
+    "Projects/roller/Picture4..png": ("roller-6", 1600),
+    "Projects/roller/draping_process3.png": ("roller-7", 1600),
+    "Projects/roller/grippers_and_tools.png": ("roller-8", 1600),
+    "Projects/roller/suction_cup.png": ("roller-9", 1600),
+    "Projects/roller/vlcsnap-2023-06-01-12h55m03s668.png": ("roller-10", 1600),
+    "Projects/roller/vlcsnap-2023-06-14-00h16m09s302.png": ("roller-11", 1600),
+    "Projects/roller/water_cleaning_vessel.jfif": ("roller-12", 1600),
 }
 
 # diagrams and plots: kept sharp as WebP
@@ -79,6 +95,11 @@ FIGURES = {
     "Projects/AACOMA/Roadshow3/steps.png": "aacoma-steps",
     "Projects/AACOMA/Roadshow3/method.png": "aacoma-method",
     "Projects/AACOMA/communication.png": "aacoma-communication",
+    "Projects/AACOMA/suction_cup.png": "aacoma-suction-cup",
+    "Projects/AACOMA/grippers_and_tools.png": "aacoma-grippers-tools",
+    "Projects/AACOMA/draping_process2.png": "aacoma-draping-process-2",
+    "Projects/AACOMA/draping_process3.png": "aacoma-draping-process-3",
+    "Projects/AACOMA/draping_process4.png": "aacoma-draping-process-4",
     "Projects/AACOMA/AACOMA_logo.png": "aacoma-logo",
     "Projects/Intelligent robotics/Picture1.png": "slam-path-following",
     "Projects/Project microcontroller/Capture d'écran 2026-11-14 141810.png": "stabilizer-timer",
@@ -109,7 +130,8 @@ VIDEOS = {
     "Projects/AACOMA/Media1_compressed.mp4": ("aacoma-draping", 1280, 1),
     "Projects/AACOMA/Roadshow5/draping édité.mp4": ("aacoma-draping-2", 1280, 1),
     "Projects/AACOMA/hand_draping.mp4": ("aacoma-demonstration", 1280, 1),
-    "Projects/Intelligent robotics/Dehaybe _ Schneider.mp4": ("slam-youbot", 1280, 8),
+    "Projects/Intelligent robotics/Dehaybe _ Schneider_cut.mp4": ("slam-youbot", 1280, 8),
+    "Projects/Intelligent robotics/pick&place_cut.mp4": ("slam-pick-place", 1280, 6),
 }
 
 

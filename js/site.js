@@ -15,6 +15,23 @@
     });
   }
 
+  /* light / dark theme toggle */
+  var themeBtn = document.querySelector(".theme-toggle");
+  if (themeBtn) {
+    var syncThemeBtn = function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      themeBtn.setAttribute("aria-pressed", dark);
+      themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    };
+    themeBtn.addEventListener("click", function () {
+      var dark = root.getAttribute("data-theme") === "dark";
+      if (dark) { root.removeAttribute("data-theme"); } else { root.setAttribute("data-theme", "dark"); }
+      try { localStorage.setItem("theme-mode-v1", dark ? "light" : "dark"); } catch (e) { }
+      syncThemeBtn();
+    });
+    syncThemeBtn();
+  }
+
   /* section reveals, once each */
   var reveals = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
@@ -100,6 +117,57 @@
         sync();
         arm();
       }, { threshold: 0.2 }).observe(car);
+    } else {
+      onScreen = true;
+    }
+    show(0);
+  });
+
+  /* media pages: a gallery too long for a single grid is split into a few pages of a few
+     pictures each, one page shown at a time, switching to the next on its own every 9 seconds
+     (unless data-auto="false", e.g. a simple two-video toggle switched only by its button) */
+  var PAGE_MS = 9000;
+  document.querySelectorAll(".media-pages").forEach(function (wrap) {
+    var pages = wrap.querySelectorAll(".media-page");
+    if (pages.length < 2) { return; }
+    var auto = wrap.getAttribute("data-auto") !== "false";
+    var ms = parseInt(wrap.getAttribute("data-interval"), 10) || PAGE_MS;
+    var dots = wrap.parentNode.querySelectorAll(".media-dots button");
+    var nextBtn = wrap.parentNode.querySelector("[data-page-next]");
+    var i = 0, onScreen = false, timer = null;
+    var sync = function () {
+      pages.forEach(function (p, k) {
+        var v = p.querySelector("video");
+        if (!v) { return; }
+        if (reduce) { v.controls = true; return; }
+        if (k === i && onScreen) { v.play().catch(function () {}); } else { v.pause(); }
+      });
+    };
+    var arm = function () {
+      window.clearTimeout(timer);
+      if (!auto || reduce || !onScreen || document.hidden) { return; }
+      timer = window.setTimeout(function () { show(i + 1); }, ms);
+    };
+    var show = function (n) {
+      i = (n + pages.length) % pages.length;
+      pages.forEach(function (p, k) { p.classList.toggle("is-active", k === i); });
+      dots.forEach(function (d, k) { d.classList.toggle("is-active", k === i); d.setAttribute("aria-pressed", k === i); });
+      if (nextBtn) {
+        nextBtn.setAttribute("aria-label", i === 0 ? nextBtn.getAttribute("data-label-next") : nextBtn.getAttribute("data-label-prev"));
+        nextBtn.textContent = i === 0 ? nextBtn.getAttribute("data-text-next") : nextBtn.getAttribute("data-text-prev");
+      }
+      sync();
+      arm();
+    };
+    dots.forEach(function (d, k) { d.addEventListener("click", function () { show(k); }); });
+    if (nextBtn) { nextBtn.addEventListener("click", function () { show(i + 1); }); }
+    document.addEventListener("visibilitychange", arm);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        onScreen = entries[0].isIntersecting;
+        sync();
+        arm();
+      }, { threshold: 0.2 }).observe(wrap);
     } else {
       onScreen = true;
     }
@@ -269,22 +337,33 @@
       dot(px, py, 7, col.text); dot(px, py, 3, col.surface);
     };
 
-    /* research: cable from a fixture on the table to the gripper, drawn as a Bezier curve */
-    var poses = [[215, 150, -0.5], [258, 222, 0.55], [178, 205, -1.0]];
+    /* research: cable from a fixture on the table to the gripper, modeled as a circular arc of fixed
+       length (solved in closed form from the two endpoints) so its total length never changes, only
+       its bend does: a tighter reach leaves more slack, so it bows more; a fuller reach straightens it. */
+    var poses = [[215, 150], [258, 222], [178, 205]];
+    var CABLE_N = 32, CABLE_LEN = 230;
     var cable = function (g) {
-      var f = [78, FLOOR - 10], pts = [];
-      var p1 = [f[0] + 70, f[1] - 70], p2 = [g[0] - 80 * Math.cos(g[2]), g[1] - 80 * Math.sin(g[2])];
-      for (var k = 0; k <= 32; k++) {
-        var u = k / 32, v = 1 - u;
-        pts.push([v * v * v * f[0] + 3 * v * v * u * p1[0] + 3 * v * u * u * p2[0] + u * u * u * g[0],
-                  v * v * v * f[1] + 3 * v * v * u * p1[1] + 3 * v * u * u * p2[1] + u * u * u * g[1]]);
+      var f = [78, FLOOR - 10], pts = [], k;
+      var dx = g[0] - f[0], dy = g[1] - f[1], d = Math.min(Math.sqrt(dx * dx + dy * dy) || 1, CABLE_LEN * 0.999);
+      var tx = dx / d, ty = dy / d, nx = ty, ny = -tx; /* perpendicular, bows up and to the left */
+      var lo = 1e-6, hi = Math.PI - 1e-6, ratio = CABLE_LEN / d, theta = 0;
+      for (var it = 0; it < 40; it++) {
+        theta = (lo + hi) / 2;
+        if (theta / Math.sin(theta) < ratio) { lo = theta; } else { hi = theta; }
+      }
+      var R = d / (2 * Math.sin(theta)), cosT = Math.cos(theta);
+      var mx = f[0] + tx * d / 2, my = f[1] + ty * d / 2;
+      var cx = mx - nx * R * cosT, cy = my - ny * R * cosT;
+      for (k = 0; k <= CABLE_N; k++) {
+        var phi = -theta + 2 * theta * (k / CABLE_N), cp = Math.cos(phi), sp = Math.sin(phi);
+        pts.push([cx + R * (cp * nx + sp * tx), cy + R * (cp * ny + sp * ty)]);
       }
       return pts;
     };
     var research = function (t) {
       var T = 5, n = Math.floor(t / T) % poses.length, u = (t % T) / T;
       var from = poses[n], to = poses[(n + 1) % poses.length], e = ease(u / 0.6);
-      var g = [mix(from[0], to[0], e), mix(from[1], to[1], e), mix(from[2], to[2], e)];
+      var g = [mix(from[0], to[0], e), mix(from[1], to[1], e)];
       var pts = cable(g), done = u >= 0.6;
       table();
       ctx.fillStyle = col.text; ctx.fillRect(64, FLOOR - 16, 28, 16);
@@ -386,7 +465,8 @@
       window.requestAnimationFrame(tick);
     };
     var update = function () {
-      var on = root.getAttribute("data-head") === "4";
+      var head = root.getAttribute("data-head");
+      var on = head === "4" || (head === "2" && cv.closest(".head-anim-right"));
       if (on && reduce) { draw(3.4); return; }
       var should = on && visible;
       if (should && !running) { running = true; window.requestAnimationFrame(tick); }

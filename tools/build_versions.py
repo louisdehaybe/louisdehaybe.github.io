@@ -208,9 +208,9 @@ def main():
             if not os.path.isdir(out):
                 os.makedirs(out)
             write(os.path.join(out, page + ".html"), build(page, v, src))
-        new = finish(src, page, 1, "")
-        if new != src:
-            write(path, new)
+        # The root pages (version 1) are final: a header and a theme were chosen, the
+        # "versions" switcher was removed from them by hand, and it must not come back.
+        # v2 ... v6 above stay archived and rebuildable, with their own switcher, for later review.
         print("built", page)
 
 

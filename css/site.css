@@ -81,6 +81,24 @@ html[data-dir="c"] {
   --r-3xl: 4px;
 }
 
+/* Dark theme: the same warm "Lab bench" palette, just darkened — not plain black. */
+html[data-theme="dark"] {
+  --bg: #26211d;
+  --surface: #2f2924;
+  --surface-2: #3a332b;
+  --text: #f2ede6;
+  --muted: #b7ac9e;
+  --line: #4a4139;
+  --accent: oklch(0.68 0.19 27);
+  --accent-text: #26211d;
+  --head-from: #ffffff;
+  --head-to: #bfbfbf;
+  --nav-bg: color-mix(in srgb, #26211d 76%, transparent);
+  --id-c: oklch(0.78 0.12 350);
+  --oc-c: oklch(0.75 0.1 255);
+  color-scheme: dark;
+}
+
 /* ---------- base ---------- */
 *,
 *::before,
@@ -421,6 +439,37 @@ html[data-dir="c"] .eyebrow::before {
 .nav-soon {
   opacity: 0.5;
   cursor: default;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: var(--r-full);
+  font-size: 16px;
+  transition: background-color 300ms var(--ease);
+}
+
+.theme-toggle:hover {
+  background: var(--surface-2);
+}
+
+.theme-toggle .ph-sun {
+  display: none;
+}
+
+html[data-theme="dark"] .theme-toggle .ph-sun {
+  display: block;
+}
+
+html[data-theme="dark"] .theme-toggle .ph-moon {
+  display: none;
 }
 
 .nav-toggle {
@@ -815,11 +864,16 @@ html[data-dir="c"] .chips li {
 }
 
 /* version 1: a soft shadow falls from the line that separates two sections */
-html:not([data-version]) .section-line {
+html:not([data-version]) .section-line,
+html:not([data-version]) .topic {
   box-shadow: inset 0 28px 32px -28px rgba(0, 0, 0, 0.12);
 }
 
 html:not([data-version]) .intro-video+.section-line {
+  box-shadow: none;
+}
+
+html:not([data-version]) .topic:first-of-type {
   box-shadow: none;
 }
 
@@ -874,6 +928,7 @@ html:not([data-version]) .intro-video+.section-line {
   line-height: 20px;
   font-weight: 600;
   text-align: center;
+  animation: map-pulse 5s ease-in-out infinite alternate;
 }
 
 .is-map .eyebrow::before {
@@ -905,11 +960,33 @@ html:not([data-version]) .intro-video+.section-line {
 .is-map.drawn .chips li {
   opacity: 1;
   transform: translate(-50%, -50%);
+  animation: map-float 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.8s);
 }
 
 .is-map .chips li:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+@keyframes map-float {
+  from {
+    translate: 0 -5px;
+  }
+
+  to {
+    translate: 0 5px;
+  }
+}
+
+@keyframes map-pulse {
+  from {
+    scale: 1;
+  }
+
+  to {
+    scale: 1.04;
+  }
 }
 
 /* medium boxes (420 to 520px wide): same picture, smaller bubbles */
@@ -954,6 +1031,11 @@ html:not([data-version]) .intro-video+.section-line {
   .is-map .chips li {
     transition: none;
   }
+
+  .is-map .chips li,
+  .is-map .eyebrow {
+    animation: none;
+  }
 }
 
 /* ---------- figures ---------- */
@@ -989,6 +1071,70 @@ html[data-dir="c"] figcaption {
   display: grid;
   gap: var(--s-300);
   margin-top: var(--s-600);
+}
+
+/* a main figure and a set of auto-switching pages stacked in one topic-grid column, so this
+   column stays close to the height of a longer block of prose on the other side instead of
+   growing with every extra picture */
+.media-col {
+  display: grid;
+  gap: var(--s-300);
+}
+
+/* ---------- media pages: a 2x2 grid of pictures that swaps for another every few seconds
+   (see js/site.js), instead of piling every picture into one ever taller column ---------- */
+.media-pages {
+  display: grid;
+}
+
+.media-page {
+  grid-area: 1 / 1;
+  margin-top: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 600ms var(--ease);
+}
+
+.media-page.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.media-page figcaption {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.media-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-100);
+  margin-top: var(--s-200);
+}
+
+.media-dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--line);
+  cursor: pointer;
+  transition: background 300ms var(--ease), transform 300ms var(--ease);
+}
+
+.media-dots button:hover {
+  background: var(--muted);
+}
+
+.media-dots button.is-active {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+
+.media-next {
+  justify-self: center;
+  margin-top: var(--s-200);
 }
 
 .figs-2 {
@@ -1090,6 +1236,11 @@ a.card:hover .card-more i {
 /* ---------- page head + research topics ---------- */
 .page-head {
   padding: 144px 0 var(--s-700);
+}
+
+/* outreach: a shorter page, so bring the title and photos closer to the top */
+.page-head-tight {
+  padding-top: 110px;
 }
 
 .page-head .wrap {
@@ -1208,6 +1359,14 @@ a.card:hover .card-more i {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-2xl);
+}
+
+.pub:has(>.pub-link) {
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+}
+
+.pub-link {
+  align-self: center;
 }
 
 .pub-meta {
@@ -1858,75 +2017,264 @@ html:not([data-version]) .intro-video .btn:hover {
     flex-direction: column;
   }
 }
+
 /* ---------- header designs (research, projects, outreach) ---------- */
 /* Five designs for the top of the inner pages are under review, chosen with <html data-head="1..5">
    (1, the plain one, when absent). Keep the block of the chosen one and delete the others. */
-.head-media { display: none; }
+.head-media {
+  display: none;
+}
 
 /* ----- 2 "Backdrop": the first picture (or video) fills the header behind the title, as on the home page ----- */
 html[data-head="2"] .page-head {
-  position: relative; isolation: isolate; overflow: hidden; display: grid; align-items: end;
-  min-height: 440px; padding-bottom: var(--s-700); background: #181818;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-items: end;
+  min-height: 440px;
+  padding-bottom: var(--s-700);
+  background: #181818;
 }
-html[data-head="2"] .head-media { display: block; position: absolute; inset: 0; z-index: -1; }
-html[data-head="2"] .head-media > * { display: none; }
-html[data-head="2"] .head-media > :first-child {
-  display: block; width: 100%; height: 100%; object-fit: cover;
+
+html[data-head="2"] .head-media {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+html[data-head="2"] .head-media>* {
+  display: none;
+}
+
+html[data-head="2"] .head-media> :first-child {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   animation: head-zoom 26s ease-in-out infinite alternate;
 }
-html[data-head="2"] .head-media::after { content: ""; position: absolute; inset: 0; background: rgba(16, 16, 16, 0.62); }
-html[data-head="2"] .page-head h1 { --head-from: #FFFFFF; --head-to: #FFFFFF; }
-html[data-head="2"] .page-head .body-lead { color: rgba(255, 255, 255, 0.9); }
-html[data-head="2"] .page-head + * { border-top: 0; }
-@keyframes head-zoom { from { transform: scale(1); } to { transform: scale(1.12) translate(-1.5%, 1%); } }
+
+html[data-head="2"] .head-media> :first-child.head-bg-frame {
+  object-position: 50% 70%;
+  transform-origin: 0% 50%;
+  animation-name: head-zoom-right;
+}
+
+@keyframes head-zoom-right {
+  from {
+    transform: scale(1.16);
+  }
+
+  to {
+    transform: scale(1.3);
+  }
+}
+
+html[data-head="2"] .head-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 16, 16, 0.62);
+}
+
+html[data-head="2"] .page-head h1 {
+  --head-from: #FFFFFF;
+  --head-to: #FFFFFF;
+}
+
+html[data-head="2"] .page-head .body-lead {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html[data-head="2"] .page-head+* {
+  border-top: 0;
+}
+
+@keyframes head-zoom {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.12) translate(-1.5%, 1%);
+  }
+}
 
 /* ----- 3 "Mosaic" and 4 "Robot drawing": the visual sits to the right of the title ----- */
 @media (min-width: 901px) {
   html:is([data-head="3"], [data-head="4"]) .page-head .wrap {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 460px); column-gap: var(--s-600); align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+    column-gap: var(--s-600);
+    align-items: start;
   }
-  html:is([data-head="3"], [data-head="4"]) .page-head .wrap > * { grid-column: 1; }
-  html:is([data-head="3"], [data-head="4"]) .page-head .wrap > .head-media { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+
+  html:is([data-head="3"], [data-head="4"]) .page-head .wrap>* {
+    grid-column: 1;
+  }
+
+  html:is([data-head="3"], [data-head="4"]) .page-head .wrap>.head-media {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+  }
 }
+
 @media (max-width: 900px) {
-  html:is([data-head="3"], [data-head="4"]) .page-head .toc { order: 2; }
-  html:is([data-head="3"], [data-head="4"]) .page-head .head-media { order: 1; margin-top: var(--s-200); }
+  html:is([data-head="3"], [data-head="4"]) .page-head .toc {
+    order: 2;
+  }
+
+  html:is([data-head="3"], [data-head="4"]) .page-head .head-media {
+    order: 1;
+    margin-top: var(--s-200);
+  }
 }
+
 /* 3: three pictures overlap and drift slowly */
 html[data-head="3"] .head-media {
-  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(6, minmax(0, 1fr)); height: 380px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  height: 380px;
 }
-html[data-head="3"] .head-media > * { display: none; }
-html[data-head="3"] .head-media > :nth-child(-n+3) {
-  display: block; width: 100%; height: 100%; object-fit: cover; min-height: 0;
-  border-radius: var(--r-3xl); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+
+html[data-head="3"] .head-media>* {
+  display: none;
+}
+
+html[data-head="3"] .head-media> :nth-child(-n+3) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 0;
+  border-radius: var(--r-3xl);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
   animation: head-float 7s ease-in-out infinite alternate;
 }
-html[data-head="3"] .head-media > :nth-child(1) { grid-area: 1 / 2 / 5 / 7; }
-html[data-head="3"] .head-media > :nth-child(2) { grid-area: 4 / 1 / 7 / 4; z-index: 1; border: 4px solid var(--bg); animation-duration: 9s; animation-delay: -3s; }
-html[data-head="3"] .head-media > :nth-child(3) { grid-area: 5 / 4 / 7 / 7; z-index: 2; border: 4px solid var(--bg); animation-duration: 8s; animation-delay: -5s; }
-@keyframes head-float { from { transform: translateY(-6px); } to { transform: translateY(8px); } }
+
+html[data-head="3"] .head-media> :nth-child(1) {
+  grid-area: 1 / 2 / 5 / 7;
+}
+
+html[data-head="3"] .head-media> :nth-child(2) {
+  grid-area: 4 / 1 / 7 / 4;
+  z-index: 1;
+  border: 4px solid var(--bg);
+  animation-duration: 9s;
+  animation-delay: -3s;
+}
+
+html[data-head="3"] .head-media> :nth-child(3) {
+  grid-area: 5 / 4 / 7 / 7;
+  z-index: 2;
+  border: 4px solid var(--bg);
+  animation-duration: 8s;
+  animation-delay: -5s;
+}
+
+@keyframes head-float {
+  from {
+    transform: translateY(-6px);
+  }
+
+  to {
+    transform: translateY(8px);
+  }
+}
+
 /* 4: a line drawing of a robot at work, animated by js/site.js (one scene per page) */
-html[data-head="4"] .head-media { display: block; }
-html[data-head="4"] .head-media > * { display: none; }
-html[data-head="4"] .head-media > .head-anim {
-  display: block; width: 100%; aspect-ratio: 460 / 330;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3xl);
+html[data-head="4"] .head-media {
+  display: block;
+}
+
+html[data-head="4"] .head-media>* {
+  display: none;
+}
+
+html[data-head="4"] .head-media>.head-anim {
+  display: block;
+  width: 100%;
+  aspect-ratio: 460 / 330;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3xl);
 }
 
 /* ----- 5 "Film strip": the pictures of the page run slowly across the full width under the title ----- */
-html[data-head="5"] .page-head { overflow-x: clip; padding-bottom: var(--s-600); }
-html[data-head="5"] .head-media {
-  display: flex; gap: var(--s-200); width: 100vw; margin: var(--s-400) 0 0 calc(50% - 50vw); overflow: hidden;
+html[data-head="5"] .page-head {
+  overflow-x: clip;
+  padding-bottom: var(--s-600);
 }
-html[data-head="5"] .head-media > * { display: none; }
-html[data-head="5"] .head-media > img {
-  display: block; flex: none; width: 300px; height: 200px; object-fit: cover; border-radius: var(--r-2xl);
+
+html[data-head="5"] .head-media {
+  display: flex;
+  gap: var(--s-200);
+  width: 100vw;
+  margin: var(--s-400) 0 0 calc(50% - 50vw);
+  overflow: hidden;
+}
+
+html[data-head="5"] .head-media>* {
+  display: none;
+}
+
+html[data-head="5"] .head-media>img {
+  display: block;
+  flex: none;
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--r-2xl);
   animation: head-strip calc(var(--n, 8) * 7s) linear infinite;
 }
-html[data-head="5"] .head-media:hover > img { animation-play-state: paused; }
-@keyframes head-strip { to { transform: translateX(calc(var(--n, 8) * -316px)); } }
+
+html[data-head="5"] .head-media:hover>img {
+  animation-play-state: paused;
+}
+
+@keyframes head-strip {
+  to {
+    transform: translateX(calc(var(--n, 8) * -316px));
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .head-media > * { animation: none !important; }
+  .head-media>* {
+    animation: none !important;
+  }
+}
+
+/* ----- 2 + 4 combo (.head-anim-right): just the animation, centered on the right of the
+   design-2 backdrop header, with the title/text kept clear of it ----- */
+@media (min-width: 901px) {
+
+  html[data-head="2"] .page-head.head-anim-right h1,
+  html[data-head="2"] .page-head.head-anim-right .body-lead,
+  html[data-head="2"] .page-head.head-anim-right .toc {
+    max-width: 600px;
+  }
+
+  html[data-head="2"] .page-head.head-anim-right .head-media>.mosaic-cable,
+  html[data-head="2"] .page-head.head-anim-right .head-media>.mosaic-se3 {
+    display: none;
+  }
+
+  html[data-head="2"] .page-head.head-anim-right .head-media>.head-anim {
+    display: block;
+    position: absolute;
+    z-index: 1;
+    border-radius: var(--r-3xl);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    animation: head-float 7s ease-in-out infinite alternate;
+    right: 48px;
+    top: 50%;
+    margin-top: -90px;
+    width: 385px;
+    aspect-ratio: 460 / 330;
+    background: color-mix(in srgb, var(--surface) 50%, transparent);
+    border: 1px solid var(--line);
+  }
 }
